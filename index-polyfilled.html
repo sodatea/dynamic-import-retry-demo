@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Import Retry Demo</title>
+
+  <script type="module" src="./dynamic-import-polyfill.js"></script>
+  <script type="module" src="./main.js"></script>
+
+  <style>
+    body {
+      margin: 20px 50px;
+    }
+    pre {
+      display: inline-block;
+    }
+    #info {
+      margin-top: 30px;
+    }
+
+    .error-message {
+      color: red;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <button type="button" id="load-button">
+      Click here to load the lazy chunk
+    </button>
+  </div>
+
+  <div id="info">
+    <input type="checkbox" name="toggle-availability" id="toggle-availability">
+    <label for="toggle-availability">
+      <pre>lazy.js</pre> is offline, check to make it available
+    </label>
+
+    <fieldset>
+      <legend>
+        Result of <code>fetch('./lazy.js')</code>:
+      </legend>
+      <div id="fetch-result"></div>
+    </fieldset>
+  </div>
+
+  <div id="error-overlay"></div>
+
+  <script>
+    window.addEventListener("unhandledrejection", function logError (event) { 
+      const p = document.createElement('p')
+      p.className = 'error-message'
+      p.textContent = event.reason
+      document.querySelector('#error-overlay').appendChild(p)
+    });
+
+    const checkbox = document.querySelector('#toggle-availability')
+    checkbox.addEventListener('change', async function toggleAvailability (e) {
+      await fetch('/api/availability', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle', payload: checkbox.checked })
+      })
+      
+      const label = document.querySelector('label[for="toggle-availability"]')
+      if (checkbox.checked) {
+        label.innerHTML = '<pre>lazy.js</pre> is online, uncheck to take it offline'
+      } else {
+        label.innerHTML = '<pre>lazy.js</pre> is offline, check to make it available'
+      }
+
+      const response = await fetch('./lazy.js', { cache: 'no-cache' })
+      const content = await response.text()
+      document.querySelector('#fetch-result').innerHTML = `<code>${content}</code>`
+    })
+    checkbox.dispatchEvent(new Event('change'))
+  </script>
+</body>
+</html>
