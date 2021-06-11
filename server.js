@@ -30,6 +30,7 @@ app.use(
 app.listen(3000, () => {
   console.log(`
 View http://localhost:3000/ to see the demo;
-View http://localhost:3000/index-polyfilled.html to see the demo running with dynamic import polyfill`)
+View http://localhost:3000/index-polyfilled.html to see the demo running with dynamic import polyfill
+View http://localhost:3000/index-fixed.html to see a workaround with preload`)
 })
 
