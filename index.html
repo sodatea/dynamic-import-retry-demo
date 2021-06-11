@@ -6,8 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dynamic Import Retry Demo</title>
 
-  <script type="module" src="./main.js"></script>
-
   <style>
     body {
       margin: 20px 50px;
@@ -17,6 +15,7 @@
     }
     #info {
       margin-top: 30px;
+      margin-bottom: 30px;
     }
 
     .error-message {
@@ -46,14 +45,18 @@
     </fieldset>
   </div>
 
-  <div id="error-overlay"></div>
+  <fieldset id="error-overlay">
+    Errors:
+    <ol id="error-list">
+    </ol>
+  </fieldset>
 
   <script>
     window.addEventListener("unhandledrejection", function logError (event) { 
-      const p = document.createElement('p')
-      p.className = 'error-message'
-      p.textContent = event.reason
-      document.querySelector('#error-overlay').appendChild(p)
+      const li = document.createElement('li')
+      li.className = 'error-message'
+      li.textContent = event.reason
+      document.querySelector('#error-list').appendChild(li)
     });
 
     const checkbox = document.querySelector('#toggle-availability')
@@ -76,6 +79,13 @@
       document.querySelector('#fetch-result').innerHTML = `<code>${content}</code>`
     })
     checkbox.dispatchEvent(new Event('change'))
+  </script>
+
+  <script type="module">
+    const btn = document.querySelector('#load-button')
+    btn.addEventListener('click', () => {
+      import('./lazy.js').then(mod => mod.modifyText(btn))
+    })
   </script>
 </body>
 </html>
